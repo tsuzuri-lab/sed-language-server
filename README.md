@@ -25,34 +25,6 @@ It also provides:
 Language clients should start `sed-language-server` as a standard-input/output
 language server and associate it with sed script files.
 
-For example, with Neovim 0.11 or later:
-
-```lua
-vim.filetype.add({
-  extension = {
-    sed = "sed",
-  },
-})
-
-vim.lsp.config("sed_language_server", {
-  cmd = { "sed-language-server" },
-  filetypes = { "sed" },
-  root_dir = function(bufnr, on_dir)
-    local path = vim.api.nvim_buf_get_name(bufnr)
-    on_dir(vim.fs.root(path, { ".git" }) or vim.fs.dirname(path))
-  end,
-  init_options = {
-    dialect = "posix",
-    regexpMode = "bre",
-  },
-})
-
-vim.lsp.enable("sed_language_server")
-```
-
-Change `dialect` to `gnu` to enable GNU sed syntax. Other LSP clients need the
-same executable, standard-input/output transport, and initialization options.
-
 ## Syntax profiles
 
 The supported profile values are:
