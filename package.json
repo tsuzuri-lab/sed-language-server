@@ -1,6 +1,6 @@
 {
   "name": "@tsuzuri-lab/sed-language-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Language server for POSIX sed with opt-in GNU syntax support.",
   "keywords": [
     "sed",
@@ -31,14 +31,14 @@
     "url": "https://github.com/tsuzuri-lab/sed-language-server/issues"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "vscode-languageserver": "^10.1.0",
-    "vscode-languageserver-textdocument": "^1.0.12"
+    "vscode-languageserver": "10.1.0",
+    "vscode-languageserver-textdocument": "1.0.12"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.5"

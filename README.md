@@ -10,6 +10,20 @@ with opt-in GNU sed 4.10 syntax support.
 The default profile is POSIX with basic regular expressions. BSD and
 other implementation-specific extensions are outside the current scope.
 
+## Installation
+
+Requires Node.js 22 or later.
+
+```sh
+npm install --global @tsuzuri-lab/sed-language-server
+```
+
+Configure the LSP client to start the server with:
+
+```sh
+sed-language-server --stdio
+```
+
 ## Features
 
 The server provides:
