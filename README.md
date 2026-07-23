@@ -1,29 +1,25 @@
 # sed-language-server
 
+[![CI](https://github.com/tsuzuri-lab/sed-language-server/actions/workflows/ci.yml/badge.svg)](https://github.com/tsuzuri-lab/sed-language-server/actions/workflows/ci.yml)
+
 A [Language Server Protocol](https://microsoft.github.io/language-server-protocol/)
 implementation for
 [POSIX `sed`](https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/utilities/sed.html)
 with opt-in GNU sed 4.10 syntax support.
 
-The default profile remains POSIX with basic regular expressions. BSD and
+The default profile is POSIX with basic regular expressions. BSD and
 other implementation-specific extensions are outside the current scope.
 
-## Status
+## Features
 
-The server diagnoses malformed commands, arguments, addresses, command blocks,
-substitute and transliterate commands, and invalid supported back-references.
-GNU mode adds GNU command, address, substitution, and regular-expression
-syntax without executing scripts, shell commands, or file operations.
+The server provides:
 
-It also provides:
-
+- profile-aware diagnostics for supported POSIX and GNU sed syntax
 - profile-aware command, substitute-flag, and branch-label completion
 - go to definition from `b`, `t`, and GNU `T` label references
 
-## Client setup
-
-Language clients should start `sed-language-server` as a standard-input/output
-language server and associate it with sed script files.
+It analyzes scripts without executing them, running shell commands, or
+accessing referenced files.
 
 ## Syntax profiles
 
@@ -59,23 +55,6 @@ They can change it for all open documents through
 
 Omitted settings select `posix` and `bre`. The server does not infer a dialect
 from document contents.
-
-## Running the server
-
-The executable communicates over standard input and output by default:
-
-```sh
-sed-language-server
-```
-
-The conventional explicit transport argument is also accepted:
-
-```sh
-sed-language-server --stdio
-```
-
-Language clients should start the executable using either form and communicate
-with it using the Language Server Protocol.
 
 ## Development
 
