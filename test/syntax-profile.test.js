@@ -16,6 +16,16 @@ test("uses the POSIX BRE profile when options are omitted", () => {
   });
 });
 
+test("uses the POSIX BRE profile when options are null", () => {
+  assert.deepEqual(resolveSyntaxProfile(null), {
+    ok: true,
+    profile: {
+      dialect: "posix",
+      regexpMode: "bre",
+    },
+  });
+});
+
 test("uses defaults for individual options that are omitted", async (t) => {
   const cases = [
     {
@@ -115,8 +125,8 @@ test("returns every invalid option in one result", () => {
   });
 });
 
-test("returns an explicit error when options are not an object", async (t) => {
-  for (const options of [null, "gnu", []]) {
+test("returns an explicit error when options are neither an object nor null", async (t) => {
+  for (const options of ["gnu", []]) {
     await t.test(JSON.stringify(options), () => {
       assert.deepEqual(resolveSyntaxProfile(options), {
         ok: false,
@@ -125,9 +135,9 @@ test("returns an explicit error when options are not an object", async (t) => {
             code: "syntax-profile-invalid-options",
             option: null,
             received: options,
-            expected: "a non-null options object",
+            expected: "an options object or null",
             message:
-              "Syntax profile options must be provided as a non-null object.",
+              "Syntax profile options must be provided as an object or null.",
           },
         ],
       });

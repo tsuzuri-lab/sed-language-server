@@ -1,6 +1,6 @@
 {
   "name": "@tsuzuri-lab/sed-language-server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Language server for POSIX sed with opt-in GNU syntax support.",
   "keywords": [
     "sed",

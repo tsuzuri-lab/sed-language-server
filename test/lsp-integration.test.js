@@ -1037,6 +1037,105 @@ test("rejects invalid initialization syntax options with InvalidParams", async (
   );
 });
 
+test("uses POSIX BRE defaults for null initialization and configuration options", async (t) => {
+  const client = new LspClient([]);
+  t.after(() => client.dispose());
+
+  const initializeResult = await client.request("initialize", {
+    processId: process.pid,
+    rootUri: null,
+    capabilities: {},
+    initializationOptions: null,
+  });
+  assert.deepEqual(initializeResult.capabilities, {
+    textDocumentSync: TextDocumentSyncKind.Incremental,
+    completionProvider: {},
+    definitionProvider: true,
+  });
+  await client.notify("initialized", {});
+
+  const uri = "file:///null-profile-options.sed";
+  await client.notify("textDocument/didOpen", {
+    textDocument: {
+      uri,
+      languageId: "sed",
+      version: 1,
+      text: "z\n",
+    },
+  });
+  const initialDiagnostics = await client.waitForNotification(
+    "textDocument/publishDiagnostics",
+    ({ uri: diagnosticUri }) => diagnosticUri === uri,
+  );
+  assert.deepEqual(initialDiagnostics, {
+    uri,
+    version: 1,
+    diagnostics: [
+      {
+        severity: DiagnosticSeverity.Error,
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 1 },
+        },
+        message: "Unknown POSIX sed command: `z`.",
+        code: "command-unknown",
+        source: "sed-language-server",
+      },
+    ],
+  });
+
+  const gnuDiagnostics = client.waitForNotification(
+    "textDocument/publishDiagnostics",
+    ({ uri: diagnosticUri, diagnostics }) =>
+      diagnosticUri === uri && diagnostics.length === 0,
+  );
+  await client.notify("workspace/didChangeConfiguration", {
+    settings: {
+      sedLanguageServer: {
+        dialect: "gnu",
+        regexpMode: "bre",
+      },
+    },
+  });
+  assert.deepEqual(await gnuDiagnostics, {
+    uri,
+    version: 1,
+    diagnostics: [],
+  });
+
+  const resetDiagnostics = client.waitForNotification(
+    "textDocument/publishDiagnostics",
+    ({ uri: diagnosticUri, diagnostics }) =>
+      diagnosticUri === uri && diagnostics[0]?.code === "command-unknown",
+  );
+  await client.notify("workspace/didChangeConfiguration", {
+    settings: null,
+  });
+  assert.deepEqual(await resetDiagnostics, {
+    uri,
+    version: 1,
+    diagnostics: [
+      {
+        severity: DiagnosticSeverity.Error,
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 1 },
+        },
+        message: "Unknown POSIX sed command: `z`.",
+        code: "command-unknown",
+        source: "sed-language-server",
+      },
+    ],
+  });
+
+  assert.equal(await client.request("shutdown"), null);
+  await client.notify("exit");
+  assert.deepEqual(await client.waitForExit(), {
+    code: 0,
+    signal: null,
+  });
+});
+
 test("reconfigures every open document and retains the last valid syntax profile", async (t) => {
   const client = new LspClient([]);
   t.after(() => client.dispose());

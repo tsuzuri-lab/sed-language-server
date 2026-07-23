@@ -29,22 +29,18 @@ function invalidOption(code, option, received, expected, message) {
 }
 
 export function resolveSyntaxProfile(options) {
-  if (options === undefined) {
+  if (options === undefined || options === null) {
     return successfulResult(defaultSyntaxProfile);
   }
 
-  if (
-    options === null ||
-    typeof options !== "object" ||
-    Array.isArray(options)
-  ) {
+  if (typeof options !== "object" || Array.isArray(options)) {
     return failedResult([
       invalidOption(
         "syntax-profile-invalid-options",
         null,
         options,
-        "a non-null options object",
-        "Syntax profile options must be provided as a non-null object.",
+        "an options object or null",
+        "Syntax profile options must be provided as an object or null.",
       ),
     ]);
   }
