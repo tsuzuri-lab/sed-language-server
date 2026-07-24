@@ -42,33 +42,73 @@ The supported profile values are:
 - `dialect`: `posix` or `gnu`
 - `regexpMode`: `bre` or `ere`
 
-Clients can select a profile during initialization:
-
-```json
-{
-  "initializationOptions": {
-    "dialect": "gnu",
-    "regexpMode": "bre"
-  }
-}
-```
-
-They can change it for all open documents through
-`workspace/didChangeConfiguration`:
-
-```json
-{
-  "settings": {
-    "sedLanguageServer": {
-      "dialect": "gnu",
-      "regexpMode": "ere"
-    }
-  }
-}
-```
-
 Omitted settings select `posix` and `bre`. The server does not infer a dialect
 from document contents.
+
+## Editor setup
+
+The following examples configure GNU `sed` syntax with extended regular
+expressions. Change `dialect` and `regexpMode` to select another supported
+profile.
+
+### Neovim 0.11+
+
+Add this to `init.lua` or to a Lua file loaded from it:
+
+```lua
+vim.lsp.config("sed_language_server", {
+  cmd = { "sed-language-server", "--stdio" },
+  filetypes = { "sed" },
+  init_options = {
+    dialect = "gnu",
+    regexpMode = "ere",
+  },
+})
+
+vim.lsp.enable("sed_language_server")
+```
+
+### Emacs with Eglot
+
+Add this to `init.el`:
+
+```elisp
+(require 'eglot)
+
+(add-to-list 'eglot-server-programs
+             '((sed-ts-mode sed-mode) .
+               ("sed-language-server" "--stdio"
+                :initializationOptions
+                (:dialect "gnu" :regexpMode "ere"))))
+```
+
+Enable Eglot in a `sed-ts-mode` or `sed-mode` buffer with `M-x eglot`.
+
+### Emacs with lsp-mode
+
+Add this to `init.el`:
+
+```elisp
+(require 'lsp-mode)
+
+(dolist (mode '(sed-ts-mode sed-mode))
+  (add-to-list 'lsp-language-id-configuration `(,mode . "sed")))
+
+(lsp-register-client
+ (make-lsp-client
+  :new-connection
+  (lsp-stdio-connection
+   (lambda () '("sed-language-server" "--stdio")))
+  :activation-fn (lsp-activate-on "sed")
+  :initialization-options '(:dialect "gnu" :regexpMode "ere")
+  :server-id 'sed-language-server))
+
+(add-hook 'sed-ts-mode-hook #'lsp-deferred)
+(add-hook 'sed-mode-hook #'lsp-deferred)
+```
+
+The `lsp-mode` configuration registers the server locally; it does not require
+an upstream `lsp-mode` configuration.
 
 ## Development
 
